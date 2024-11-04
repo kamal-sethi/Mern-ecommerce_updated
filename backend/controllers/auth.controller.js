@@ -35,6 +35,8 @@ const setCookies = (res, accessToken, refreshToken) => {
     maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
   });
 };
+
+//signup controller
 export const signup = async (req, res, next) => {
   const { name, email, password } = req.body;
   const userExists = await User.findOne({ email });
@@ -53,23 +55,58 @@ export const signup = async (req, res, next) => {
     setCookies(res, accessToken, refreshToken);
     res.status(201).json({
       message: "User registered successfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
     });
   } catch (error) {
-    console.log(error);
+    console.log("Error in Login controller", error.message);
     res.status(500).json({
       message: error.message,
     });
   }
 };
+
+//login controller
 export const login = async (req, res, next) => {
-  res.send("Login route called");
+  try {
+    console.log("code is running");
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    const passwordMatched = await user.comparePassword(password);
+    if (!passwordMatched) {
+      console.log("password is matched");
+    }
+    if (user && (await user.comparePassword(password))) {
+      const { accessToken, refreshToken } = generateToken(user._id);
+
+      await storeRefreshToken(user._id, refreshToken);
+
+      setCookies(res, accessToken, refreshToken);
+
+      res.status(200).json({
+        message: "Login Successfully",
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      });
+    } else {
+      res.status(500).json({
+        message: "Invalid Credentials",
+      });
+    }
+  } catch (error) {
+    console.log("Error in Login controller", error.message);
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
+
+//logout controller
 export const logout = async (req, res, next) => {
   try {
     const refreshToken = req.cookies.refreshToken;
@@ -84,7 +121,7 @@ export const logout = async (req, res, next) => {
       res.json({ message: "logout Successfully" });
     }
   } catch (error) {
-    console.log(error);
+    console.log("Error in Logout controller", error.message);
     res.status(500).json({
       message: error.message,
       success: false,
