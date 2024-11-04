@@ -1,4 +1,40 @@
+import { redis } from "../lib/redis.js";
 import User from "../models/user.model.js";
+import jwt from "jsonwebtoken";
+
+const generateToken = (userId) => {
+  const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "15m",
+  });
+  const refreshToken = jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "7d",
+  });
+
+  return { accessToken, refreshToken };
+};
+
+const storeRefreshToken = async (userId, refreshToken) => {
+  await redis.set(
+    `refresh_token:${userId}`,
+    refreshToken,
+    "EX",
+    7 * 24 * 60 * 60
+  );
+};
+const setCookies = (res, accessToken, refreshToken) => {
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true, //prevent XSS attacks,cross site scripting attacks
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict", ///prevents CSRF attacks,cross site request forgery attack
+    maxAge: 15 * 60 * 1000, //15 minutes
+  });
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true, //prevent XSS attacks,cross site scripting attacks
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict", ///prevents CSRF attacks,cross site request forgery attack
+    maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
+  });
+};
 export const signup = async (req, res, next) => {
   const { name, email, password } = req.body;
   const userExists = await User.findOne({ email });
@@ -11,15 +47,24 @@ export const signup = async (req, res, next) => {
       });
     }
     const user = await User.create({ name, email, password });
+    const { accessToken, refreshToken } = generateToken(user._id);
+
+    await storeRefreshToken(user._id, refreshToken);
+    setCookies(res, accessToken, refreshToken);
     res.status(201).json({
       message: "User registered successfully",
-      user,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({
-      message:error.message
-    })
+      message: error.message,
+    });
   }
 };
 export const login = async (req, res, next) => {
@@ -28,5 +73,3 @@ export const login = async (req, res, next) => {
 export const logout = async (req, res, next) => {
   res.send("Logout route called");
 };
-
-
