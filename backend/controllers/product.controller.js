@@ -33,3 +33,13 @@ export const getFeaturedProducts = async (req, res, next) => {
       .json({ message: "Server Error", error: error.message });
   }
 };
+
+export const createProduct = async (req, res, next) => {
+  try {
+  } catch (error) {
+    console.log("error in creating product controller", error.message);
+    return res
+      .status(501)
+      .json({ message: "Server error", error: error.message });
+  }
+};
