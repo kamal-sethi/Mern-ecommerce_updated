@@ -92,3 +92,31 @@ export const deleteProduct = async (req, res) => {
       .json({ message: "internal server error", error: error.message });
   }
 };
+
+export const getProductRecommendation = async (req, res) => {
+  try {
+    const product = await Product.aggregate([
+      {
+        $sample: { size: 3 },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          description: 1,
+          image: 1,
+          price: 1,
+        },
+      },
+    ]);
+    res.json(product);
+  } catch (error) {
+    console.log(
+      "Error in get Product recommendation controller",
+      error.message
+    );
+    res
+      .status(500)
+      .json({ message: "internal server error", error: error.message });
+  }
+};
