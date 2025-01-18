@@ -96,11 +96,13 @@ export const deleteProduct = async (req, res) => {
 export const getProductRecommendation = async (req, res) => {
   try {
     const product = await Product.aggregate([
+      //aggregate used for filtering and making queries in the database
       {
-        $sample: { size: 3 },
+        $sample: { size: 3 }, //randomly selects the 3 products
       },
       {
         $project: {
+          //we are telling database what to include in the result
           _id: 1,
           name: 1,
           description: 1,
@@ -118,5 +120,18 @@ export const getProductRecommendation = async (req, res) => {
     res
       .status(500)
       .json({ message: "internal server error", error: error.message });
+  }
+};
+
+export const getProductByCategory = async (req, res) => {
+  const { category } = req.params;
+  try {
+    const productByCategory = await Product.find({ category });
+    res.json(productByCategory);
+  } catch (error) {
+    console.log("error in get product by category controller", error.message);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
