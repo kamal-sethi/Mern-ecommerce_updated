@@ -135,3 +135,43 @@ export const getProductByCategory = async (req, res) => {
       .json({ message: "Internal server error", error: error.message });
   }
 };
+export const toggleFeaturedProduct = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const product = await Product.find({ id });
+    if (product) {
+      product.isFeatured = !product.isFeatured;
+      const updatedProduct = await product.save();
+      //updating in redis
+
+      await updateFeatureProductsCache();
+
+      res.json(updatedProduct);
+    } else {
+      res.json({ message: "No Product is found" });
+    }
+  } catch (error) {
+    console.log(
+      "error in get product by toggle featured product controller",
+      error.message
+    );
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+};
+
+async function updateFeatureProductsCache() {
+  try {
+    const featuredProduct = await Product.find({ isFeatured: true }).lean();
+
+    await redis.set("featured_products", JSON.stringify(featuredProduct));
+  } catch (error) {
+    console.log(
+      "Error in updating the featured products in redis",
+      error.message
+    );
+    res.status(500).json({ message: "internal server error" });
+  }
+}
