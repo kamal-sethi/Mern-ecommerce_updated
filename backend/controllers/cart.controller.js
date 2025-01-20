@@ -1,3 +1,4 @@
+import Product from "../models/product.model.js";
 export const addToCart = async (req, res) => {
   try {
     const { productId } = req.body;
@@ -32,9 +33,9 @@ export const removeAllFromCart = async (req, res) => {
     }
     await user.save();
     res.json(user.cartItems);
-
-    await user.cartItems.find((item) => item.id === productId);
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 };
 
 export const updatedProductQuantity = async (req, res) => {
@@ -59,5 +60,24 @@ export const updatedProductQuantity = async (req, res) => {
   } catch (error) {
     console.log("error in updating product in  cart controller", error.message);
     res.status(500).json({ message: "internal server error" });
+  }
+};
+
+export const getCartProducts = async (req, res) => {
+  try {
+    const products = await Product.find({ _id: { $in: req.user.cartItems } });
+
+    //adding quantity to each product
+
+    const cartItems = products.map((product) => {
+      const item = req.user.cartItems.find(
+        (cartItem) => cartItem.id === product.id
+      );
+      return { ...product.toJSON(), quantity: item.quantity };
+    });
+    res.json(cartItems);
+  } catch (error) {
+    console.log("error in get cart products controller", error.message);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
