@@ -31,10 +31,10 @@ const orderSchema = new mongoose.Schema(
       required: true,
       mim: 0,
     },
-    stripeSessionId: {
-      type: String,
-      unique: true,
-    },
+    stripeSessionId:{
+        type:String,
+        unique:true
+    }
   },
   { timestamps: true }
 );
