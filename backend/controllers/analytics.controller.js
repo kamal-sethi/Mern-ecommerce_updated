@@ -81,6 +81,7 @@ const getDailySalesData = async (startDate, endDate) => {
   });
 };
 
+
 function getDatesInRange(startDate, endDate) {
   const dates = [];
   let currentDate = new Date(startDate);

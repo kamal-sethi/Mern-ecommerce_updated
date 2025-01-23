@@ -174,3 +174,15 @@ export const refreshToken = async (req, res, next) => {
     });
   }
 };
+
+export const getProfile = async (req, res) => {
+  try {
+    req.json(req.user);
+  } catch (error) {
+    console.log("error in getting profile controller", error.message);
+    res.status(500).json({
+      message: "error in refreshing the access token",
+      success: false,
+    });
+  }
+};
