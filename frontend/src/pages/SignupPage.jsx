@@ -24,6 +24,7 @@ const SignupPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("called here")
     signup(formData);
   };
   return (

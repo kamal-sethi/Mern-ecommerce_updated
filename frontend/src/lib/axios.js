@@ -5,3 +5,5 @@ const axiosInstance = axios.create({
     import.meta.mode === "development" ? "http://localhost:5000/api" : "/api",
   withCredentials: true, //send cookies to the server
 });
+
+export default axiosInstance
