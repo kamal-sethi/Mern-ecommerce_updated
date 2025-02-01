@@ -4,8 +4,16 @@ import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
 import Navbar from "./components/Navbar";
 import { Toaster } from "react-hot-toast";
+import { useUserStore } from "./stores/useUserStore";
+import { useEffect } from "react";
 
 function App() {
+  const { user, checkAuth } = useUserStore();
+  console.log(user);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
   return (
     <div className="min-h-screen bg-gray-900 text-white relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
@@ -19,7 +27,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Homepage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/login" element={user ? <Homepage /> : <LoginPage />} />
         </Routes>
       </div>
       <Toaster />

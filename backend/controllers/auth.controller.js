@@ -34,6 +34,7 @@ const setCookies = (res, accessToken, refreshToken) => {
     sameSite: "strict", ///prevents CSRF attacks,cross site request forgery attack
     maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
   });
+  
 };
 
 //signup controller
@@ -72,7 +73,7 @@ export const signup = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-   
+
     const user = await User.findOne({ email });
     const passwordMatched = await user.comparePassword(password);
     if (!passwordMatched) {
@@ -137,12 +138,11 @@ export const refreshToken = async (req, res, next) => {
         message: "No refresh token is provided",
       });
     }
-    console.log(refreshToken);
+    
     const decode = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    // console.log(decode.userId)
 
     const storedToken = await redis.get(`refresh_token:${decode.userId}`);
-    console.log(storedToken);
+   
     if (storedToken !== refreshToken) {
       return res.status(500).json({
         message: "invalid refresh token",
@@ -176,7 +176,7 @@ export const refreshToken = async (req, res, next) => {
 
 export const getProfile = async (req, res) => {
   try {
-    req.json(req.user);
+    res.json(req.user);
   } catch (error) {
     console.log("error in getting profile controller", error.message);
     res.status(500).json({

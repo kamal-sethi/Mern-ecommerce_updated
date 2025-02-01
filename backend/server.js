@@ -8,6 +8,7 @@ import paymentRoutes from "./routes/payment.route.js";
 import analyticsRoutes from "./routes/analytics.route.js";
 import { connectDB } from "./lib/db.js";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 const app = express();
 
 dotenv.config();
@@ -16,6 +17,12 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json()); //helps to parse the body of the request
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Change this to match your frontend URL
+    credentials: true, // Allow cookies
+  })
+);
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/cart", cartRoutes);
