@@ -22,4 +22,17 @@ export const useProductStore = create((set) => ({
       toast.error(error.response.data.error);
     }
   },
+
+  getProduct: async () => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.get("/products");
+      set({ loading: false, products: res.data });
+    } catch (error) {
+      set({ loading: false });
+      toast.error(error.response.data.error);
+    }
+  },
+
+  
 }));
