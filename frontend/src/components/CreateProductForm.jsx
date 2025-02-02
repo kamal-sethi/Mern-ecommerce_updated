@@ -24,10 +24,18 @@ const CreateProductForm = () => {
     e.preventDefault();
     console.log(newProduct);
   };
+  const loading = false;
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewProduct({ ...newProduct, image: reader.result });
+      };
 
-  const handleImageChange=()=>{
-
-  }
+      reader.readAsDataURL(file); //base 64
+    }
+  };
   return (
     <motion.div
       className="bg-gray-800 shadow-lg rounded-lg p-8 mb-8 max-w-xl mx-auto"
@@ -149,6 +157,28 @@ const CreateProductForm = () => {
             <span className="ml-3 text-sm text-gray-400">Image uploaded </span>
           )}
         </div>
+        <button
+          type="submit"
+          className="w-full mt-5 flex justify-center py-2 px-4 border border-transparent rounded-md 
+					shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 
+					focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
+          disabled={loading}
+        >
+          {loading ? (
+            <>
+              <Loader
+                className="mr-2 h-5 w-5 animate-spin"
+                aria-hidden="true"
+              />
+              Loading...
+            </>
+          ) : (
+            <>
+              <PlusCircle className="mr-2 h-5 w-5" />
+              Create Product
+            </>
+          )}
+        </button>
       </form>
     </motion.div>
   );
