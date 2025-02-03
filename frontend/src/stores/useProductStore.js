@@ -42,5 +42,21 @@ export const useProductStore = create((set) => ({
     } catch (error) {}
   },
 
-  toggleFeaturedProduct: async () => {},
+  toggleFeaturedProduct: async (productId) => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.patch(`/products/${productId}`);
+      set((prevProducts) => ({
+        products: prevProducts.products.map((product) =>
+          product._id === productId
+            ? { ...product, isFeatured: response.data.isFeatured }
+            : product
+        ),
+        loading: false,
+      }));
+    } catch (error) {
+      set({ loading: false });
+      toast.error(error.response.data.error);
+    }
+  },
 }));

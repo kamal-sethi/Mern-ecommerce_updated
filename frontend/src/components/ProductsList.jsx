@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Trash, Star } from "lucide-react";
 
 const ProductsList = () => {
-  const { deleteProduct, getAllProducts, products } = useProductStore();
+  const { deleteProduct, products, toggleFeaturedProduct } = useProductStore();
 
   return (
     <motion.div
