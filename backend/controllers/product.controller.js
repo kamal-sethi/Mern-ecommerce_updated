@@ -84,6 +84,9 @@ export const deleteProduct = async (req, res) => {
 
     //deleting product from the database
     await Product.findByIdAndDelete(req.params.id);
+
+    // to do - if the product is available in redis then delete from there also
+
     res.status(200).json("Product deleted Successfully");
   } catch (error) {
     console.log("Error in delete product controller ", error.message);
@@ -126,8 +129,8 @@ export const getProductRecommendation = async (req, res) => {
 export const getProductByCategory = async (req, res) => {
   const { category } = req.params;
   try {
-    const productByCategory = await Product.find({ category });
-    res.json(productByCategory);
+    const products = await Product.find({ category });
+    res.json({ products });
   } catch (error) {
     console.log("error in get product by category controller", error.message);
     return res
@@ -138,7 +141,7 @@ export const getProductByCategory = async (req, res) => {
 export const toggleFeaturedProduct = async (req, res) => {
   const { id } = req.params;
   try {
-    const product = await Product.findById( id );
+    const product = await Product.findById(id);
     if (product) {
       product.isFeatured = !product.isFeatured;
       const updatedProduct = await product.save();

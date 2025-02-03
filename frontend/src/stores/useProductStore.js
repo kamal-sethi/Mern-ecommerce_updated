@@ -38,8 +38,18 @@ export const useProductStore = create((set) => ({
   deleteProduct: async (productId) => {
     set({ loading: true });
     try {
-      const res = await axiosInstance.post("/products/productId");
-    } catch (error) {}
+      await axiosInstance.delete(`/products/${productId}`);
+      set((prevProducts) => ({
+        products: prevProducts.products.filter(
+          (product) => product._id !== productId
+        ),
+        loading: false,
+      }));
+      toast.success("Product Deleted Successfully");
+    } catch (error) {
+      set({ loading: false });
+      toast.error(error.response.data.error);
+    }
   },
 
   toggleFeaturedProduct: async (productId) => {
@@ -57,6 +67,17 @@ export const useProductStore = create((set) => ({
     } catch (error) {
       set({ loading: false });
       toast.error(error.response.data.error);
+    }
+  },
+  fetchProductsByCategory: async (category) => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.get(`/products/category/${category}`);
+      console.log(res.data.products);
+      set({ products: res.data.products, loading: false });
+    } catch (error) {
+      set({ loading: false, error: "Error in fetching products by category" });
+      toast.error(error.response.data.error || "Failed to fetch products");
     }
   },
 }));
